@@ -1,0 +1,83 @@
+#agent-llm 的 .gitignore 文件
+# ===== 密钥与配置（最重要！务必最先写）=====
+.env
+.env.*
+# 保留示例文件，方便别人照着填
+!.env.example
+*.key
+*.pem
+secrets.toml
+.streamlit/secrets.toml
+config/secrets.yml
+credentials.json
+service-account.json
+*token*.json
+
+# ===== 模型权重与缓存（体积巨大，绝不入库）=====
+.cache/
+models/
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.ckpt
+.huggingface/
+transformers_cache/
+torch_cache/
+ollama/models/
+
+# ===== 向量库 / 索引（可由原始数据重建）=====
+chroma/
+chroma_db/
+vectorstore/
+vector_store/
+*.faiss
+*.index
+*.pkl
+*.sqlite
+*.sqlite3
+*.db
+qdrant_storage/
+milvus/
+weaviate_data/
+
+# ===== 运行产物与日志 =====
+logs/
+*.log
+traces/
+# MLflow / 实验记录
+runs/
+outputs/
+artifacts/
+checkpoints/
+sessions/
+session_*.json
+# ⚠️ 若 jsonl 是训练数据/知识库，请删掉下面这行，或加 !data/*.jsonl 取反
+*.jsonl
+conversations/
+
+# ===== Python 运行环境 =====
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ===== 前端 / Node（Agent 应用界面）=====
+node_modules/
+.next/
+dist/
+build/
+
+# ===== 工具与 IDE =====
+.langchain/
+.cursor/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*~
+*.swp
