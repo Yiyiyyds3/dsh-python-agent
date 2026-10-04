@@ -1,0 +1,47 @@
+#!/bin/sh
+# ============================================================
+# pre-commit 钩子：拦截密钥误提交
+# 启用方式（一次性）：
+#   git config core.hooksPath .githooks
+# 好处：比装 gitleaks 轻量，零依赖，克隆下来即可用。
+# 注意：core.hooksPath 是本地配置，不会被提交，
+#       所以队友需要各自执行一次上面那条命令。
+# ============================================================
+#
+# 防止把 .env 之类文件提交上去 —— 这是新手最贵的一课：
+# 密钥一旦进了 git 历史，删除文件也没用，必须去平台吊销重发。
+
+blocked=""
+for f in $(git diff --cached --name-only --diff-filter=ACM); do
+    case "$(basename "$f")" in
+        .env|.env.local|.env.production|.env.development|secrets.toml|credentials.json|service-account.json|*.pem|*.key)
+            blocked="$blocked $f"
+            ;;
+    esac
+done
+
+if [ -n "$blocked" ]; then
+    echo ""
+    echo "❌ 提交被拦截：检测到疑似密钥文件$blocked"
+    echo ""
+    echo "   如果这是误判（例如示例文件），请用："
+    echo "     git commit --no-verify"
+    echo ""
+    echo "   如果是真的密钥，请："
+    echo "     1. git restore --staged <文件>"
+    echo "     2. 去平台吊销该密钥并重新生成"
+    echo ""
+    exit 1
+fi
+
+# 顺手拦一下超大文件（GitHub 单文件上限 100MB，超了推不上去还很难清理）
+for f in $(git diff --cached --name-only --diff-filter=ACM); do
+    if [ -f "$f" ]; then
+        size=$(wc -c < "$f" 2>/dev/null || echo 0)
+        if [ "$size" -gt 10485760 ]; then
+            echo "⚠️  警告：$f 超过 10MB（$((size / 1048576))MB），确认不是模型权重或数据集？"
+        fi
+    fi
+done
+
+exit 0

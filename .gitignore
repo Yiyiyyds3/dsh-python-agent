@@ -1,4 +1,8 @@
-#agent-llm 的 .gitignore 文件
+# ============================================================
+# .gitignore — dsh-python-agent
+# 原则：能由代码/原始数据重建的东西，一律不入库。
+# ============================================================
+
 # ===== 密钥与配置（最重要！务必最先写）=====
 .env
 .env.*
@@ -33,6 +37,7 @@ chroma/
 chroma_db/
 vectorstore/
 vector_store/
+data/vectorstore/
 *.faiss
 *.index
 *.pkl
@@ -54,17 +59,55 @@ artifacts/
 checkpoints/
 sessions/
 session_*.json
-# ⚠️ 若 jsonl 是训练数据/知识库，请删掉下面这行，或加 !data/*.jsonl 取反
-*.jsonl
 conversations/
+
+# ===== 数据与数据集（关键例外，见下）=====
+# 默认忽略所有对话/轨迹 jsonl，避免把调试垃圾提交上去
+*.jsonl
+# ⚠️ 但评测集、知识库、测试夹具是项目资产，必须入库，故显式取反。
+#    取反规则必须写在忽略规则之后，否则不生效。
+!data/**/*.jsonl
+!data/**/*.csv
+!tests/fixtures/**/*.jsonl
+# 大体积原始数据不入库（用脚本或 DVC 拉取），只留说明
+data/raw/
+!data/raw/.gitkeep
+data/**/*.parquet
 
 # ===== Python 运行环境 =====
 .venv/
 venv/
+env/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+.python-version
+
+# ===== Python 现代工具链（uv / ruff / mypy / coverage）=====
+# 注意：uv.lock 不忽略！锁文件必须提交，否则队友装到的版本和你不同
+.ruff_cache/
+.mypy_cache/
+.pytype/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# ===== Agent 应用框架运行时 =====
+.chainlit/
+.gradio/
+.streamlit/
+.langchain/
+.langgraph/
+.llama_index/
+crewai_db/
+.autogen/
 
 # ===== 前端 / Node（Agent 应用界面）=====
 node_modules/
@@ -73,7 +116,6 @@ dist/
 build/
 
 # ===== 工具与 IDE =====
-.langchain/
 .cursor/
 .idea/
 .vscode/

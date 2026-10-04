@@ -1,0 +1,66 @@
+# ============================================================
+# .gitattributes — 行尾与二进制规则
+# 作用：让 Windows / Linux / macOS 上 checkout 出来的文件一致
+# 为什么需要：Windows 默认 core.autocrlf=true，会把 CRLF 提交成 LF、
+#   又检出回 CRLF，导致「我什么都没改，git status 却全红」以及
+#   shell 脚本在 Linux CI 上因 \r 报错。用显式规则取代自动猜测。
+# ============================================================
+
+# --- 默认：所有文本文件统一 LF，且禁止自动转换 ---
+* text=auto eol=lf
+
+# --- Windows 专属脚本必须保留 CRLF，否则无法执行 ---
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+*.psm1 text eol=crlf
+
+# --- Unix 脚本强制 LF，否则 CI 里报 "bad interpreter" ---
+*.sh   text eol=lf
+*.bash text eol=lf
+Dockerfile text eol=lf
+
+# --- 二进制文件：禁止 git 做行尾/编码推断，也别尝试 diff ---
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.tar  binary
+*.7z   binary
+*.xlsx binary
+*.docx binary
+*.pptx binary
+*.parquet binary
+*.npy  binary
+*.npz  binary
+*.pkl  binary
+*.pt   binary
+*.pth  binary
+*.onnx binary
+*.gguf binary
+*.safetensors binary
+*.faiss binary
+*.sqlite binary
+*.sqlite3 binary
+*.db   binary
+*.so   binary
+*.dll  binary
+*.exe  binary
+*.pyc  binary
+
+# --- 锁文件与生成物：标记为「生成」，折叠 diff、减少 review 噪音 ---
+uv.lock                -diff linguist-generated
+poetry.lock            -diff linguist-generated
+requirements*.txt      -diff linguist-generated
+package-lock.json      -diff linguist-generated
+pnpm-lock.yaml         -diff linguist-generated
+
+# --- 导出归档时排除无关内容 ---
+.github/     export-ignore
+.gitignore   export-ignore
+.gitattributes export-ignore
