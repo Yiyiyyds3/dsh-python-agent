@@ -2,8 +2,10 @@
 
 > 一个用 Python 从零实现的 LLM Agent 项目。
 
+[![CI](https://github.com/Yiyiyyds3/dsh-python-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Yiyiyyds3/dsh-python-agent/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
 
 ---
 
