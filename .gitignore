@@ -85,10 +85,11 @@ __pycache__/
 *.egg-info/
 build/
 dist/
-.python-version
 
 # ===== Python 现代工具链（uv / ruff / mypy / coverage）=====
-# 注意：uv.lock 不忽略！锁文件必须提交，否则队友装到的版本和你不同
+# 注意：
+#   uv.lock      必须提交！锁文件保证队友装到的依赖版本与你完全一致。
+#   .python-version 建议提交，把解释器版本钉死；若你只在本机开发也可忽略。
 .ruff_cache/
 .mypy_cache/
 .pytype/

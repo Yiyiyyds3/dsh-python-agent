@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 测试 (${{ matrix.os }} / Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # 双平台矩阵：Windows 是你本机环境，Ubuntu 是部署环境。
+        # 只测一个平台的话，"在我机器上能跑" 的 bug 会漏到生产。
+        os: [ubuntu-latest]
+        python-version: ["3.11", "3.12"]
+        include:
+          - os: windows-latest
+            python-version: "3.11"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: 安装依赖
+        run: uv sync --locked
+
+      - name: 代码检查 (ruff)
+        run: uv run ruff check .
+
+      - name: 格式检查 (ruff format)
+        run: uv run ruff format --check .
+
+      - name: 类型检查 (mypy)
+        run: uv run mypy src
+
+      - name: 单元测试
+        run: uv run pytest
+
+      - name: 密钥泄漏扫描
+        shell: bash
+        run: |
+          # 防止把真实密钥提交进仓库。这类错误一旦发生，
+          # 光删文件没用 —— 必须去平台吊销密钥，非常麻烦。
+          if git grep -nE 'sk-[A-Za-z0-9]{20,}' -- . ':!*.md' ':!.env.example'; then
+            echo "::error::检测到疑似真实 API 密钥被提交"
+            exit 1
+          fi
+          echo "✅ 未发现泄露的密钥"
